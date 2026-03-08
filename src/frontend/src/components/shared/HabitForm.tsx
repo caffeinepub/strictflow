@@ -302,7 +302,7 @@ export function HabitForm({
                   timeToComplete: Number.parseInt(e.target.value) || 1,
                 }))
               }
-              className="h-10 w-24"
+              className="h-12 w-40"
             />
             <span className="text-sm text-muted-foreground">
               minutes to finish
@@ -339,7 +339,7 @@ export function HabitForm({
                     gracePeriod: Number.parseInt(e.target.value) || 1,
                   }))
                 }
-                className="h-9 w-20"
+                className="h-12 w-40"
               />
               <span className="text-sm text-muted-foreground">
                 minutes after due time

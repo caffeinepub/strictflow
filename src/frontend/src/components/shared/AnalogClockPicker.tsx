@@ -17,8 +17,12 @@ function ScrollDrum({
   formatLabel,
 }: ScrollDrumProps) {
   const listRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const ITEM_H = 56;
   const fmt = formatLabel ?? ((v: number) => String(v).padStart(2, "0"));
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputVal, setInputVal] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // scroll to selected value without animation on mount
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount
@@ -30,26 +34,17 @@ function ScrollDrum({
     el.scrollTop = idx * ITEM_H;
   }, []);
 
-  const handleScroll = () => {
+  // Sync scroll position when value changes externally
+  useEffect(() => {
     const el = listRef.current;
     if (!el) return;
-    const idx = Math.round(el.scrollTop / ITEM_H);
-    const clamped = Math.max(0, Math.min(idx, items.length - 1));
-    if (items[clamped] !== value) onChange(items[clamped]);
-  };
-
-  // Snap on scroll end
-  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleScrollWithSnap = () => {
-    handleScroll();
-    if (snapTimer.current) clearTimeout(snapTimer.current);
-    snapTimer.current = setTimeout(() => {
-      const el = listRef.current;
-      if (!el) return;
-      const idx = Math.round(el.scrollTop / ITEM_H);
-      el.scrollTo({ top: idx * ITEM_H, behavior: "smooth" });
-    }, 80);
-  };
+    const idx = items.indexOf(value);
+    if (idx < 0) return;
+    const expectedTop = idx * ITEM_H;
+    if (Math.abs(el.scrollTop - expectedTop) > 2) {
+      el.scrollTo({ top: expectedTop, behavior: "smooth" });
+    }
+  }, [value, items]);
 
   const scrollTo = (v: number) => {
     const el = listRef.current;
@@ -58,48 +53,147 @@ function ScrollDrum({
     if (idx >= 0) el.scrollTo({ top: idx * ITEM_H, behavior: "smooth" });
   };
 
+  // Wheel: move exactly one step per wheel event
+  const wheelAccum = useRef(0);
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    wheelAccum.current += e.deltaY;
+    if (Math.abs(wheelAccum.current) >= 30) {
+      const dir = wheelAccum.current > 0 ? 1 : -1;
+      wheelAccum.current = 0;
+      const curIdx = items.indexOf(value);
+      const nextIdx = Math.max(0, Math.min(curIdx + dir, items.length - 1));
+      if (nextIdx !== curIdx) {
+        onChange(items[nextIdx]);
+        scrollTo(items[nextIdx]);
+      }
+    }
+  };
+
+  // Keyboard: arrow up/down change by 1; Enter/click to enter edit mode
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const curIdx = items.indexOf(value);
+      const nextIdx = Math.min(curIdx + 1, items.length - 1);
+      if (nextIdx !== curIdx) {
+        onChange(items[nextIdx]);
+        scrollTo(items[nextIdx]);
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const curIdx = items.indexOf(value);
+      const nextIdx = Math.max(curIdx - 1, 0);
+      if (nextIdx !== curIdx) {
+        onChange(items[nextIdx]);
+        scrollTo(items[nextIdx]);
+      }
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      startEditing();
+    }
+  };
+
+  const startEditing = () => {
+    setInputVal(fmt(value));
+    setIsEditing(true);
+    setTimeout(() => inputRef.current?.select(), 0);
+  };
+
+  const commitEdit = () => {
+    const num = Number.parseInt(inputVal, 10);
+    if (!Number.isNaN(num) && items.includes(num)) {
+      onChange(num);
+      scrollTo(num);
+    }
+    setIsEditing(false);
+    containerRef.current?.focus();
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") commitEdit();
+    else if (e.key === "Escape") {
+      setIsEditing(false);
+      containerRef.current?.focus();
+    }
+  };
+
+  // Native scroll (touch/trackpad momentum) -- snap on settle
+  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleScroll = () => {
+    if (snapTimer.current) clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(() => {
+      const el = listRef.current;
+      if (!el) return;
+      const idx = Math.round(el.scrollTop / ITEM_H);
+      const clamped = Math.max(0, Math.min(idx, items.length - 1));
+      el.scrollTo({ top: clamped * ITEM_H, behavior: "smooth" });
+      if (items[clamped] !== value) onChange(items[clamped]);
+    }, 100);
+  };
+
   return (
     <div className="flex flex-col items-center gap-1 select-none">
       <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
         {label}
       </span>
+      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: spinbutton role makes this interactive */}
       <div
-        className="relative overflow-hidden rounded-2xl border-2 border-primary/50 bg-card"
+        ref={containerRef}
+        role="spinbutton"
+        tabIndex={0}
+        aria-valuenow={value}
+        aria-valuemin={items[0]}
+        aria-valuemax={items[items.length - 1]}
+        aria-label={`${label}: ${fmt(value)}, click or press Enter to type, arrow keys to adjust`}
+        onKeyDown={handleKeyDown}
+        onWheel={handleWheel}
+        onClick={startEditing}
+        className="relative overflow-hidden rounded-2xl border-2 border-primary/50 bg-card focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
         style={{ width: 80, height: ITEM_H }}
       >
         {/* selection highlight */}
         <div className="pointer-events-none absolute inset-0 z-20 bg-primary/10" />
-        <ul
-          ref={listRef}
-          onScroll={handleScrollWithSnap}
-          className="overflow-y-scroll h-full"
-          style={{
-            scrollSnapType: "y mandatory",
-            paddingTop: 0,
-            paddingBottom: 0,
-            scrollbarWidth: "none",
-          }}
-        >
-          {items.map((v) => (
-            // biome-ignore lint/a11y/useKeyWithClickEvents: scroll drum handles keyboard via scroll
-            <li
-              key={v}
-              onClick={() => {
-                onChange(v);
-                scrollTo(v);
-              }}
-              style={{ scrollSnapAlign: "center", height: ITEM_H }}
-              className={cn(
-                "flex items-center justify-center cursor-pointer text-2xl font-bold transition-colors",
-                v === value
-                  ? "text-primary"
-                  : "text-foreground/50 hover:text-foreground/80",
-              )}
-            >
-              {fmt(v)}
-            </li>
-          ))}
-        </ul>
+
+        {isEditing ? (
+          // inline text input overlay
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-card">
+            <input
+              ref={inputRef}
+              value={inputVal}
+              onChange={(e) => setInputVal(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              onBlur={commitEdit}
+              className="w-full text-center text-2xl font-bold bg-transparent outline-none text-primary"
+              style={{ caretColor: "auto" }}
+            />
+          </div>
+        ) : (
+          <ul
+            ref={listRef}
+            onScroll={handleScroll}
+            className="overflow-y-scroll h-full pointer-events-none"
+            style={{
+              scrollSnapType: "y mandatory",
+              paddingTop: 0,
+              paddingBottom: 0,
+              scrollbarWidth: "none",
+            }}
+          >
+            {items.map((v) => (
+              <li
+                key={v}
+                style={{ scrollSnapAlign: "center", height: ITEM_H }}
+                className={cn(
+                  "flex items-center justify-center text-2xl font-bold transition-colors",
+                  v === value ? "text-primary" : "text-foreground/50",
+                )}
+              >
+                {fmt(v)}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
