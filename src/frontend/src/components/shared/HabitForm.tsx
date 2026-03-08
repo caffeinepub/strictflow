@@ -65,7 +65,7 @@ export function HabitForm({
     ...defaultData,
     ...initialData,
   });
-  const [showStartClock, setShowStartClock] = useState(false);
+
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [customColor, setCustomColor] = useState("");
@@ -93,14 +93,6 @@ export function HabitForm({
     const dm = totalMins % 60;
     const computedDueTime = `${String(dh).padStart(2, "0")}:${String(dm).padStart(2, "0")}`;
     await onSave({ ...data, dueTime: computedDueTime });
-  };
-
-  const formatTime12 = (time: string) => {
-    if (!time) return "";
-    const [h, m] = time.split(":").map(Number);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const h12 = h % 12 || 12;
-    return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
   };
 
   return (
@@ -287,29 +279,13 @@ export function HabitForm({
         {/* Start Time */}
         <div className="space-y-1.5">
           <Label className="text-sm font-semibold">Start Time</Label>
-          <button
-            type="button"
-            onClick={() => setShowStartClock(!showStartClock)}
-            className={cn(
-              "w-full h-10 px-3 rounded-lg border text-sm font-mono text-left transition-colors",
-              showStartClock
-                ? "border-primary bg-primary/10"
-                : "border-border bg-card hover:bg-muted",
-            )}
-          >
-            {formatTime12(data.startTime)}
-          </button>
-        </div>
-
-        {showStartClock && (
-          <div className="flex justify-center animate-slide-up">
+          <div className="flex justify-center">
             <AnalogClockPicker
               value={data.startTime}
               onChange={(v) => setData((d) => ({ ...d, startTime: v }))}
-              label="Start Time"
             />
           </div>
-        )}
+        </div>
 
         {/* Time to Complete */}
         <div className="space-y-1.5">

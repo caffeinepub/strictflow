@@ -159,38 +159,40 @@
   }
 
   /* ─── Analog Clock Picker ─────────────────────────────────────────── */
-  /* Outer ring background */
+  /* Outer ring background — always light grey so face pops */
   .clock-outer-ring {
-    fill: oklch(var(--muted));
+    fill: #e8e8e8;
   }
   /* Outer ring border stroke */
   .clock-ring-stroke {
-    stroke: oklch(var(--border));
+    stroke: #cccccc;
   }
-  /* Inner face background */
+  /* Inner face background — always white so black numbers are always visible */
   .clock-face-bg {
-    fill: oklch(var(--card));
+    fill: #ffffff;
   }
-  /* Tick marks */
+  /* Tick marks — dark on white face */
   .clock-tick {
-    stroke: oklch(var(--muted-foreground) / 0.5);
+    stroke: #555555;
   }
   /* Primary accent (hands, dots, selected bg) */
   .clock-accent {
     fill: oklch(var(--primary));
     stroke: oklch(var(--primary));
   }
-  /* Unselected number — high contrast on the face */
+  /* Unselected number — always dark for maximum contrast on white face */
   .clock-number {
-    fill: oklch(var(--foreground));
+    fill: #111111;
+    font-weight: 800;
   }
   /* Selected number — white on primary highlight */
   .clock-number-selected {
-    fill: oklch(var(--primary-foreground));
+    fill: #ffffff;
+    font-weight: 800;
   }
   /* Inner center dot (white pip on primary center) */
   .clock-center-dot {
-    fill: oklch(var(--primary-foreground));
+    fill: #ffffff;
   }
 
   .no-scrollbar::-webkit-scrollbar {
