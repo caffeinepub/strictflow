@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Light mode — crisp white with electric teal accent */
+    --background: 0.97 0.005 240;
+    --foreground: 0.15 0.02 260;
+    --card: 1 0 0;
+    --card-foreground: 0.15 0.02 260;
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0.02 260;
+    --primary: 0.58 0.18 210;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.93 0.01 240;
+    --secondary-foreground: 0.25 0.02 260;
+    --muted: 0.93 0.008 240;
+    --muted-foreground: 0.5 0.015 250;
+    --accent: 0.62 0.2 195;
+    --accent-foreground: 1 0 0;
+    --destructive: 0.58 0.22 25;
+    --destructive-foreground: 1 0 0;
+    --border: 0.88 0.01 240;
+    --input: 0.92 0.008 240;
+    --ring: 0.58 0.18 210;
+
+    /* Charts */
+    --chart-1: 0.58 0.18 210;
+    --chart-2: 0.65 0.18 145;
+    --chart-3: 0.72 0.2 85;
+    --chart-4: 0.58 0.22 25;
+    --chart-5: 0.62 0.2 320;
+
+    /* Custom tokens */
+    --success: 0.65 0.18 145;
+    --success-foreground: 1 0 0;
+    --warning: 0.72 0.2 85;
+    --warning-foreground: 0.15 0 0;
+    --status-ontime: 0.65 0.18 145;
+    --status-late: 0.72 0.2 85;
+    --status-failed: 0.58 0.22 25;
+
+    --sidebar: 0.97 0.005 240;
+    --sidebar-foreground: 0.15 0.02 260;
+    --sidebar-primary: 0.58 0.18 210;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.93 0.01 240;
+    --sidebar-accent-foreground: 0.25 0.02 260;
+    --sidebar-border: 0.88 0.01 240;
+    --sidebar-ring: 0.58 0.18 210;
+  }
+
+  .dark {
+    /* Dark mode — deep slate with electric teal */
+    --background: 0.13 0.01 260;
+    --foreground: 0.95 0.01 230;
+    --card: 0.17 0.015 260;
+    --card-foreground: 0.95 0.01 230;
+    --popover: 0.2 0.02 260;
+    --popover-foreground: 0.95 0.01 230;
+    --primary: 0.72 0.2 195;
+    --primary-foreground: 0.1 0.02 260;
+    --secondary: 0.22 0.02 260;
+    --secondary-foreground: 0.9 0.01 230;
+    --muted: 0.22 0.02 260;
+    --muted-foreground: 0.6 0.01 240;
+    --accent: 0.72 0.2 195;
+    --accent-foreground: 0.1 0.02 260;
+    --destructive: 0.65 0.22 25;
+    --destructive-foreground: 1 0 0;
+    --border: 0.28 0.015 260;
+    --input: 0.25 0.015 260;
+    --ring: 0.72 0.2 195;
+
+    /* Charts */
+    --chart-1: 0.72 0.2 195;
+    --chart-2: 0.72 0.18 145;
+    --chart-3: 0.78 0.2 85;
+    --chart-4: 0.65 0.22 25;
+    --chart-5: 0.68 0.2 320;
+
+    /* Custom tokens */
+    --success: 0.72 0.18 145;
+    --success-foreground: 0.1 0 0;
+    --warning: 0.78 0.2 85;
+    --warning-foreground: 0.1 0 0;
+    --status-ontime: 0.72 0.18 145;
+    --status-late: 0.78 0.2 85;
+    --status-failed: 0.65 0.22 25;
+
+    --sidebar: 0.17 0.015 260;
+    --sidebar-foreground: 0.95 0.01 230;
+    --sidebar-primary: 0.72 0.2 195;
+    --sidebar-primary-foreground: 0.1 0.02 260;
+    --sidebar-accent: 0.22 0.02 260;
+    --sidebar-accent-foreground: 0.9 0.01 230;
+    --sidebar-border: 0.28 0.015 260;
+    --sidebar-ring: 0.72 0.2 195;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    user-select: none;
+  }
+
+  input, textarea {
+    user-select: text;
+  }
+}
+
+@layer utilities {
+  .tab-safe-bottom {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tab-bar-height {
+    height: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .status-ontime {
+    color: oklch(var(--status-ontime));
+  }
+  .status-late {
+    color: oklch(var(--status-late));
+  }
+  .status-failed {
+    color: oklch(var(--status-failed));
+  }
+  .bg-status-ontime {
+    background-color: oklch(var(--status-ontime) / 0.15);
+    color: oklch(var(--status-ontime));
+  }
+  .bg-status-late {
+    background-color: oklch(var(--status-late) / 0.15);
+    color: oklch(var(--status-late));
+  }
+  .bg-status-failed {
+    background-color: oklch(var(--status-failed) / 0.15);
+    color: oklch(var(--status-failed));
+  }
+
+  /* ─── Analog Clock Picker ─────────────────────────────────────────── */
+  /* Outer ring background */
+  .clock-outer-ring {
+    fill: oklch(var(--muted));
+  }
+  /* Outer ring border stroke */
+  .clock-ring-stroke {
+    stroke: oklch(var(--border));
+  }
+  /* Inner face background */
+  .clock-face-bg {
+    fill: oklch(var(--card));
+  }
+  /* Tick marks */
+  .clock-tick {
+    stroke: oklch(var(--muted-foreground) / 0.5);
+  }
+  /* Primary accent (hands, dots, selected bg) */
+  .clock-accent {
+    fill: oklch(var(--primary));
+    stroke: oklch(var(--primary));
+  }
+  /* Unselected number — high contrast on the face */
+  .clock-number {
+    fill: oklch(var(--foreground));
+  }
+  /* Selected number — white on primary highlight */
+  .clock-number-selected {
+    fill: oklch(var(--primary-foreground));
+  }
+  /* Inner center dot (white pip on primary center) */
+  .clock-center-dot {
+    fill: oklch(var(--primary-foreground));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .card-glow {
+    box-shadow: 0 0 0 1px oklch(var(--border)), 0 2px 12px oklch(var(--foreground) / 0.04);
+  }
+
+  .swipe-container {
+    display: flex;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+}

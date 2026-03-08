@@ -1,0 +1,190 @@
+import type { AppSettings, Group, Habit, HabitLog } from "../backend";
+
+import {
+  Variant_monthly_daily_weekly,
+  Variant_onetime_daily,
+  Variant_ontime_late_failed,
+  Variant_timer_normal,
+} from "../backend";
+
+export type { Habit, HabitLog, Group, AppSettings };
+
+export {
+  Variant_monthly_daily_weekly,
+  Variant_onetime_daily,
+  Variant_ontime_late_failed,
+  Variant_timer_normal,
+};
+
+export type HabitStatus =
+  | "upcoming"
+  | "active"
+  | "done"
+  | "done_late"
+  | "failed"
+  | "in_progress";
+
+export type ActiveTab = "habits" | "edit" | "stats" | "settings";
+
+export interface ActiveTimer {
+  habitId: string;
+  startedAt: number;
+  durationSeconds: number;
+}
+
+export interface HabitFormData {
+  name: string;
+  color: string;
+  icon: string;
+  importance: number;
+  mode: "normal" | "timer";
+  timerDuration: number;
+  startTime: string;
+  dueTime: string;
+  timeToComplete: number;
+  graceEnabled: boolean;
+  gracePeriod: number;
+  repeatType: "onetime" | "daily";
+  weekdays: number[];
+  groupId: string;
+  hidden: boolean;
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  defaultStatsView: Variant_monthly_daily_weekly.daily,
+  impactGoal: 80,
+  notificationLeadTime: BigInt(10),
+  pauseTimers: false,
+  completionGoal: BigInt(5),
+  darkMode: false,
+  defaultHabitsView: Variant_monthly_daily_weekly.daily,
+  confirmDelete: true,
+  mondayFirst: true,
+};
+
+export const PRESET_COLORS = [
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#14b8a6",
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
+  "#f43f5e",
+  "#06b6d4",
+  "#84cc16",
+  "#a855f7",
+  "#64748b",
+  "#0f172a",
+  "#7c3aed",
+  "#059669",
+];
+
+export const HABIT_ICONS = [
+  // Fitness & Sport
+  "🏃",
+  "🏋️",
+  "🚴",
+  "🏊",
+  "🧘",
+  "🤸",
+  "⛹️",
+  "🏄",
+  "🤾",
+  "🏇",
+  "🚵",
+  "🤼",
+  "🥊",
+  "🎯",
+  "🏆",
+  "🥇",
+  "🎖️",
+  "🧗",
+  "🤺",
+  "🛡️",
+  "⚔️",
+  "⚽",
+  "🏀",
+  "🎾",
+  "🏸",
+  "⛷️",
+  "🤿",
+  // Health & Wellness
+  "💊",
+  "💧",
+  "🍎",
+  "🥗",
+  "🥦",
+  "🍇",
+  "😴",
+  "🛏️",
+  "🌛",
+  "💤",
+  "🧴",
+  "🛁",
+  "💆",
+  "🌡️",
+  "🫁",
+  "🦷",
+  // Mind & Work
+  "🧠",
+  "💡",
+  "📚",
+  "📖",
+  "✍️",
+  "📝",
+  "🗒️",
+  "🗂️",
+  "📊",
+  "📈",
+  "💻",
+  "📱",
+  "🔬",
+  "🔭",
+  "🎓",
+  "🏫",
+  "💼",
+  "🔑",
+  "🛠️",
+  "🧲",
+  // Creativity & Arts
+  "🎨",
+  "🖌️",
+  "🎵",
+  "🎸",
+  "🎤",
+  "🎬",
+  "🎭",
+  "🎮",
+  "🎲",
+  "🎪",
+  // Nature & Life
+  "🌱",
+  "🌻",
+  "🌊",
+  "🌅",
+  "🌄",
+  "🗺️",
+  "✈️",
+  "🧳",
+  "🏠",
+  "🌿",
+  // Food & Lifestyle
+  "🍵",
+  "☕",
+  "🍳",
+  "🧹",
+  "⏰",
+  // General
+  "✅",
+  "⚡",
+  "🔥",
+  "☀️",
+];
+
+export const WEEKDAYS_MON_FIRST = ["M", "T", "W", "T", "F", "S", "S"];
+export const WEEKDAYS_SUN_FIRST = ["S", "M", "T", "W", "T", "F", "S"];
+// 0=Sunday, 1=Monday, ..., 6=Saturday
+export const WEEKDAY_VALUES_MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
+export const WEEKDAY_VALUES_SUN_FIRST = [0, 1, 2, 3, 4, 5, 6];
