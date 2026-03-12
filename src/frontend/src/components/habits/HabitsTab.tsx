@@ -81,7 +81,7 @@ export function HabitsTab() {
         data.repeatType === "onetime"
           ? Variant_onetime_daily.onetime
           : Variant_onetime_daily.daily,
-        data.weekdays.map(BigInt),
+        data.weekdays.map((n) => BigInt(n)),
         data.groupId || null,
         data.hidden,
       );
@@ -241,17 +241,22 @@ export function HabitsTab() {
 
       {/* Add Sheet */}
       <Sheet open={showAddSheet} onOpenChange={setShowAddSheet}>
-        <SheetContent side="bottom" className="h-[90vh] rounded-t-2xl p-0">
+        <SheetContent
+          side="bottom"
+          className="h-[90vh] rounded-t-2xl p-0 flex flex-col overflow-hidden"
+        >
           <SheetHeader className="px-4 pt-4 pb-2 shrink-0">
             <SheetTitle className="text-left">New Habit</SheetTitle>
           </SheetHeader>
-          <HabitForm
-            groups={groups}
-            mondayFirst={settings.mondayFirst}
-            onSave={handleAddHabit}
-            onCancel={() => setShowAddSheet(false)}
-            isSaving={isSaving}
-          />
+          <div className="flex-1 overflow-hidden min-h-0">
+            <HabitForm
+              groups={groups}
+              mondayFirst={settings.mondayFirst}
+              onSave={handleAddHabit}
+              onCancel={() => setShowAddSheet(false)}
+              isSaving={isSaving}
+            />
+          </div>
         </SheetContent>
       </Sheet>
     </div>
