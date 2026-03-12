@@ -26,7 +26,8 @@ function LoadingScreen() {
 function LoginScreen({
   login,
   isLoggingIn,
-}: { login: () => void; isLoggingIn: boolean }) {
+  onSkip,
+}: { login: () => void; isLoggingIn: boolean; onSkip: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full bg-background px-8 max-w-lg mx-auto">
       {/* Logo mark */}
@@ -58,12 +59,23 @@ function LoginScreen({
             Signing in…
           </>
         ) : (
-          "Sign In to Continue"
+          "Sign In with Internet Identity"
         )}
       </button>
 
+      {/* Skip login button */}
+      <button
+        type="button"
+        onClick={onSkip}
+        disabled={isLoggingIn}
+        data-ocid="login.secondary_button"
+        className="w-full max-w-xs py-3 rounded-xl border border-border text-foreground font-medium text-base mt-3 active:scale-95 transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        Continue without signing in
+      </button>
+
       <p className="text-xs text-muted-foreground mt-6 text-center">
-        Uses Internet Identity — secure, private, no password needed.
+        Sign in to sync your habits across devices. Your data stays private.
       </p>
     </div>
   );
@@ -228,12 +240,21 @@ function AppInner() {
 export default function App() {
   const { identity, login, isInitializing, isLoggingIn } =
     useInternetIdentity();
+  const [skippedLogin, setSkippedLogin] = useState(false);
 
   if (isInitializing) return <LoadingScreen />;
 
-  if (!identity || identity.getPrincipal().isAnonymous()) {
-    return <LoginScreen login={login} isLoggingIn={isLoggingIn} />;
+  // Show app if signed in OR if user chose to skip login
+  const isSignedIn = identity && !identity.getPrincipal().isAnonymous();
+  if (isSignedIn || skippedLogin) {
+    return <AppInner />;
   }
 
-  return <AppInner />;
+  return (
+    <LoginScreen
+      login={login}
+      isLoggingIn={isLoggingIn}
+      onSkip={() => setSkippedLogin(true)}
+    />
+  );
 }
