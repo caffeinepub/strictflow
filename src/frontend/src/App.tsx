@@ -6,12 +6,68 @@ import { SettingsTab } from "./components/settings/SettingsTab";
 import { TabBar } from "./components/shared/TabBar";
 import { StatsTab } from "./components/stats/StatsTab";
 import { useActor } from "./hooks/useActor";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { backendService as backend, setActor } from "./services/backendService";
 import { seedSampleData } from "./services/sampleData";
 import { useAppStore } from "./store/appStore";
 import type { ActiveTab } from "./types";
 
 const TAB_ORDER: ActiveTab[] = ["habits", "edit", "stats", "settings"];
+
+function LoadingScreen() {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-background">
+      <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />
+      <p className="text-muted-foreground text-sm">Loading StrictFlow…</p>
+    </div>
+  );
+}
+
+function LoginScreen({
+  login,
+  isLoggingIn,
+}: { login: () => void; isLoggingIn: boolean }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-background px-8 max-w-lg mx-auto">
+      {/* Logo mark */}
+      <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg">
+        <span className="text-4xl">🎯</span>
+      </div>
+
+      {/* App name */}
+      <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">
+        StrictFlow
+      </h1>
+      <p className="text-muted-foreground text-center text-base mb-10 leading-relaxed">
+        Track your habits.
+        <br />
+        Build your discipline.
+      </p>
+
+      {/* Sign in button */}
+      <button
+        type="button"
+        onClick={login}
+        disabled={isLoggingIn}
+        data-ocid="login.primary_button"
+        className="w-full max-w-xs py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-lg shadow-md active:scale-95 transition-transform disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {isLoggingIn ? (
+          <>
+            <span className="w-5 h-5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
+            Signing in…
+          </>
+        ) : (
+          "Sign In to Continue"
+        )}
+      </button>
+
+      <p className="text-xs text-muted-foreground mt-6 text-center">
+        Uses Internet Identity — secure, private, no password needed.
+      </p>
+    </div>
+  );
+}
 
 function AppInner() {
   const {
@@ -170,5 +226,14 @@ function AppInner() {
 }
 
 export default function App() {
+  const { identity, login, isInitializing, isLoggingIn } =
+    useInternetIdentity();
+
+  if (isInitializing) return <LoadingScreen />;
+
+  if (!identity || identity.getPrincipal().isAnonymous()) {
+    return <LoginScreen login={login} isLoggingIn={isLoggingIn} />;
+  }
+
   return <AppInner />;
 }
