@@ -46,6 +46,9 @@ export function HabitCard({
   const isFailed = status === "failed";
   const isTimer = habit.mode === Variant_timer_normal.timer;
 
+  const isStatusColored =
+    status === "done" || status === "done_late" || status === "failed";
+
   useEffect(() => {
     if (!activeTimer) {
       clearInterval(intervalRef.current);
@@ -153,13 +156,25 @@ export function HabitCard({
     <div
       data-ocid={`habit.item.${index}`}
       className={cn(
-        "rounded-2xl overflow-hidden bg-card shadow-card transition-all animate-slide-up",
-        isCompleted && "opacity-70",
-        isFailed && !isCompleted && "opacity-60",
+        "rounded-2xl overflow-hidden shadow-card transition-all animate-slide-up",
+        // background color based on status
+        status === "done" && "bg-green-50 dark:bg-green-950/20",
+        status === "done_late" && "bg-amber-50 dark:bg-amber-950/20",
+        status === "failed" && "bg-red-50 dark:bg-red-950/20",
+        !isStatusColored && "bg-card",
+        // opacity
+        isCompleted && "opacity-80",
+        isFailed && "opacity-70",
+        // border left for status states
+        status === "done" && "border-l-4 border-green-500",
+        status === "done_late" && "border-l-4 border-amber-400",
+        status === "failed" && "border-l-4 border-red-500",
       )}
-      style={{
-        borderLeft: `4px solid ${habit.color}`,
-      }}
+      style={
+        !isStatusColored
+          ? { borderLeft: `4px solid ${habit.color}` }
+          : undefined
+      }
     >
       <div className="p-3.5">
         <div className="flex items-start gap-3">
@@ -190,15 +205,32 @@ export function HabitCard({
                 />
               </div>
 
-              {/* Status badge */}
-              <span
-                className={cn(
-                  "text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0",
-                  statusClass(status),
-                )}
-              >
-                {statusLabel(status)}
-              </span>
+              {/* Status indicator */}
+              {isStatusColored ? (
+                <span
+                  className={cn(
+                    "text-xl font-black uppercase tracking-tight shrink-0",
+                    status === "done" && "text-green-600",
+                    status === "done_late" && "text-amber-500",
+                    status === "failed" && "text-red-600",
+                  )}
+                >
+                  {status === "done"
+                    ? "DONE"
+                    : status === "done_late"
+                      ? "LATE"
+                      : "FAILED"}
+                </span>
+              ) : (
+                <span
+                  className={cn(
+                    "text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0",
+                    statusClass(status),
+                  )}
+                >
+                  {statusLabel(status)}
+                </span>
+              )}
             </div>
 
             {/* Times */}

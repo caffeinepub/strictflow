@@ -269,26 +269,26 @@ export function EditHabitsTab() {
                     </div>
                     <StarRating value={Number(habit.importance)} size="sm" />
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleToggleHide(habit)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
                       title={habit.hidden ? "Show" : "Hide"}
                     >
                       {habit.hidden ? (
-                        <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Eye className="h-4 w-4 text-foreground" />
                       ) : (
-                        <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                        <EyeOff className="h-4 w-4 text-foreground" />
                       )}
                     </button>
                     <button
                       data-ocid={`edit.edit_button.${idx + 1}`}
                       type="button"
                       onClick={() => setEditingHabit(habit)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Pencil className="h-4 w-4 text-foreground" />
                     </button>
                     <button
                       data-ocid={`edit.delete_button.${idx + 1}`}
@@ -300,9 +300,9 @@ export function EditHabitsTab() {
                           handleDeleteHabit(habit.id);
                         }
                       }}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </button>
                   </div>
                 </div>
@@ -349,14 +349,14 @@ export function EditHabitsTab() {
                     style={{ backgroundColor: group.color }}
                   />
                   <p className="flex-1 text-sm font-semibold">{group.name}</p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button
                       data-ocid={`edit.group.edit_button.${idx + 1}`}
                       type="button"
                       onClick={() => openGroupEdit(group)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted hover:bg-muted/70 transition-colors"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Pencil className="h-4 w-4 text-foreground" />
                     </button>
                     <button
                       data-ocid={`edit.group.delete_button.${idx + 1}`}
@@ -368,9 +368,9 @@ export function EditHabitsTab() {
                           handleDeleteGroup(group.id);
                         }
                       }}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </button>
                   </div>
                 </div>
@@ -385,19 +385,24 @@ export function EditHabitsTab() {
         open={!!editingHabit}
         onOpenChange={(o) => !o && setEditingHabit(null)}
       >
-        <SheetContent side="bottom" className="h-[90vh] rounded-t-2xl p-0">
+        <SheetContent
+          side="bottom"
+          className="h-[90vh] rounded-t-2xl p-0 flex flex-col"
+        >
           <SheetHeader className="px-4 pt-4 pb-2 shrink-0">
             <SheetTitle className="text-left">Edit Habit</SheetTitle>
           </SheetHeader>
           {editingHabit && (
-            <HabitForm
-              initialData={getHabitFormData(editingHabit)}
-              groups={groups}
-              mondayFirst={settings.mondayFirst}
-              onSave={handleSaveHabit}
-              onCancel={() => setEditingHabit(null)}
-              isSaving={isSaving}
-            />
+            <div className="flex-1 min-h-0">
+              <HabitForm
+                initialData={getHabitFormData(editingHabit)}
+                groups={groups}
+                mondayFirst={settings.mondayFirst}
+                onSave={handleSaveHabit}
+                onCancel={() => setEditingHabit(null)}
+                isSaving={isSaving}
+              />
+            </div>
           )}
         </SheetContent>
       </Sheet>

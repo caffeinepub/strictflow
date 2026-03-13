@@ -10,9 +10,91 @@ import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { backendService as backend, setActor } from "./services/backendService";
 import { seedSampleData } from "./services/sampleData";
 import { useAppStore } from "./store/appStore";
-import type { ActiveTab } from "./types";
+import type { ActiveTab, Group, Habit } from "./types";
+import { Variant_onetime_daily, Variant_timer_normal } from "./types";
 
 const TAB_ORDER: ActiveTab[] = ["habits", "edit", "stats", "settings"];
+
+// Local sample habits/groups for guest mode (no backend)
+const GUEST_SAMPLE_GROUPS: Group[] = [
+  { id: "group-fitness", name: "Fitness", color: "#22c55e" },
+  { id: "group-work", name: "Deep Work", color: "#3b82f6" },
+];
+
+const GUEST_SAMPLE_HABITS: Habit[] = [
+  {
+    id: "habit-morning-run",
+    name: "Morning Run",
+    color: "#22c55e",
+    icon: "🏃",
+    importance: BigInt(5),
+    mode: Variant_timer_normal.timer,
+    timerDuration: BigInt(30),
+    startTime: "06:30",
+    dueTime: "07:00",
+    graceEnabled: true,
+    gracePeriod: BigInt(10),
+    repeatType: Variant_onetime_daily.daily,
+    weekdays: [1, 2, 3, 4, 5].map(BigInt),
+    groupId: "group-fitness",
+    hidden: false,
+    createdAt: BigInt(Date.now()),
+  },
+  {
+    id: "habit-evening-journal",
+    name: "Evening Journal",
+    color: "#ec4899",
+    icon: "✍️",
+    importance: BigInt(1),
+    mode: Variant_timer_normal.normal,
+    timerDuration: BigInt(0),
+    startTime: "20:00",
+    dueTime: "20:15",
+    graceEnabled: true,
+    gracePeriod: BigInt(30),
+    repeatType: Variant_onetime_daily.daily,
+    weekdays: [0, 1, 2, 3, 4, 5, 6].map(BigInt),
+    groupId: undefined,
+    hidden: false,
+    createdAt: BigInt(Date.now()),
+  },
+  {
+    id: "habit-deep-work",
+    name: "Deep Work Session",
+    color: "#3b82f6",
+    icon: "💻",
+    importance: BigInt(4),
+    mode: Variant_timer_normal.timer,
+    timerDuration: BigInt(45),
+    startTime: "09:00",
+    dueTime: "09:45",
+    graceEnabled: false,
+    gracePeriod: BigInt(0),
+    repeatType: Variant_onetime_daily.daily,
+    weekdays: [1, 2, 3, 4, 5].map(BigInt),
+    groupId: "group-work",
+    hidden: false,
+    createdAt: BigInt(Date.now()),
+  },
+  {
+    id: "habit-vitamins",
+    name: "Take Vitamins",
+    color: "#f97316",
+    icon: "💊",
+    importance: BigInt(3),
+    mode: Variant_timer_normal.normal,
+    timerDuration: BigInt(0),
+    startTime: "08:00",
+    dueTime: "08:05",
+    graceEnabled: true,
+    gracePeriod: BigInt(60),
+    repeatType: Variant_onetime_daily.daily,
+    weekdays: [0, 1, 2, 3, 4, 5, 6].map(BigInt),
+    groupId: undefined,
+    hidden: false,
+    createdAt: BigInt(Date.now()),
+  },
+];
 
 function LoadingScreen() {
   return (
@@ -75,13 +157,14 @@ function LoginScreen({
       </button>
 
       <p className="text-xs text-muted-foreground mt-6 text-center">
-        Sign in to sync your habits across devices. Your data stays private.
+        Sign in with Internet Identity to keep your data forever — your habits
+        are restored every time you log in.
       </p>
     </div>
   );
 }
 
-function AppInner() {
+function AppInner({ isGuest }: { isGuest: boolean }) {
   const {
     activeTab,
     setActiveTab,
@@ -116,9 +199,17 @@ function AppInner() {
     }
   }, [settings.darkMode]);
 
-  // Load initial data when actor is ready
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only re-run when actor changes
+  // Load initial data
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only re-run when actor/isGuest changes
   useEffect(() => {
+    if (isGuest) {
+      // Guest mode: load local sample data directly (no backend)
+      setGroups(GUEST_SAMPLE_GROUPS);
+      setHabits(GUEST_SAMPLE_HABITS);
+      setLoading(false);
+      return;
+    }
+
     if (!actor) return;
     const loadData = async () => {
       setLoading(true);
@@ -140,7 +231,7 @@ function AppInner() {
       }
     };
     loadData();
-  }, [actor]);
+  }, [actor, isGuest]);
 
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -247,7 +338,7 @@ export default function App() {
   // Show app if signed in OR if user chose to skip login
   const isSignedIn = identity && !identity.getPrincipal().isAnonymous();
   if (isSignedIn || skippedLogin) {
-    return <AppInner />;
+    return <AppInner isGuest={!isSignedIn && skippedLogin} />;
   }
 
   return (

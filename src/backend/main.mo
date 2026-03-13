@@ -1,20 +1,21 @@
-import Float "mo:core/Float";
-import Int "mo:core/Int";
-import Nat "mo:core/Nat";
-import Text "mo:core/Text";
 import Array "mo:core/Array";
 import List "mo:core/List";
-import Time "mo:core/Time";
 import Map "mo:core/Map";
 import Order "mo:core/Order";
+import Time "mo:core/Time";
+import Text "mo:core/Text";
 import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import Float "mo:core/Float";
+import Int "mo:core/Int";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
-  // Initialize the access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -103,19 +104,18 @@ actor {
     name : Text;
   };
 
-  // State Variables - Per-user data isolation
-  let userHabits = Map.empty<Principal, Map.Map<Text, Habit>>();
-  let userGroups = Map.empty<Principal, Map.Map<Text, Group>>();
-  let userHabitLogs = Map.empty<Principal, Map.Map<Text, HabitLog>>();
-  let userSettings = Map.empty<Principal, AppSettings>();
-  let userProfiles = Map.empty<Principal, UserProfile>();
+  var userHabitsMap : Map.Map<Principal, Map.Map<Text, Habit>> = Map.empty<Principal, Map.Map<Text, Habit>>();
+  var userGroupsMap : Map.Map<Principal, Map.Map<Text, Group>> = Map.empty<Principal, Map.Map<Text, Group>>();
+  var userHabitLogsMap : Map.Map<Principal, Map.Map<Text, HabitLog>> = Map.empty<Principal, Map.Map<Text, HabitLog>>();
+  var userSettings : Map.Map<Principal, AppSettings> = Map.empty<Principal, AppSettings>();
+  var userProfiles : Map.Map<Principal, UserProfile> = Map.empty<Principal, UserProfile>();
 
   // Helper function to get or create user's habit map
   func getUserHabitsMap(user : Principal) : Map.Map<Text, Habit> {
-    switch (userHabits.get(user)) {
+    switch (userHabitsMap.get(user)) {
       case (null) {
         let newMap = Map.empty<Text, Habit>();
-        userHabits.add(user, newMap);
+        userHabitsMap.add(user, newMap);
         newMap;
       };
       case (?existingMap) { existingMap };
@@ -124,10 +124,10 @@ actor {
 
   // Helper function to get or create user's group map
   func getUserGroupsMap(user : Principal) : Map.Map<Text, Group> {
-    switch (userGroups.get(user)) {
+    switch (userGroupsMap.get(user)) {
       case (null) {
         let newMap = Map.empty<Text, Group>();
-        userGroups.add(user, newMap);
+        userGroupsMap.add(user, newMap);
         newMap;
       };
       case (?existingMap) { existingMap };
@@ -136,10 +136,10 @@ actor {
 
   // Helper function to get or create user's habit logs map
   func getUserHabitLogsMap(user : Principal) : Map.Map<Text, HabitLog> {
-    switch (userHabitLogs.get(user)) {
+    switch (userHabitLogsMap.get(user)) {
       case (null) {
         let newMap = Map.empty<Text, HabitLog>();
-        userHabitLogs.add(user, newMap);
+        userHabitLogsMap.add(user, newMap);
         newMap;
       };
       case (?existingMap) { existingMap };
